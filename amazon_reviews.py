@@ -1,15 +1,10 @@
-from django.shortcuts import render,HttpResponse
-
 from lxml import html
 from json import dump,loads
 from requests import get
 import json
 from re import sub
 from dateutil import parser as dateparser
-
-#from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
-
+from time import sleep
 
 def ParseReviews(asin):
     # This script has only been tested with Amazon.com
@@ -127,39 +122,17 @@ def ParseReviews(asin):
     return {"error": "failed to process the page", "url": amazon_url}
             
 
-def ReadAsin(search):
+def ReadAsin():
     # Add your own ASINs here
     AsinList = ['B01ETPUQ6E', 'B017HW9DEW', 'B00U8KSIOM']
     extracted_data = []
     
     # for asin in AsinList:
         # print("Downloading and processing page http://www.amazon.com/dp/" + asin)
-    extracted_data.append(ParseReviews(search))
+    extracted_data.append(ParseReviews('B01ETPUQ6E'))
 
-    return extracted_data[0].get('name'), extracted_data[0].get('price'), extracted_data[0].get('reviews')
+    for text in extracted_data[0].get('reviews'):
+        print(text.get('review_text'))
 
-
-
-# Create your views here.
-def homepage(request):
-
-    if request.method == 'POST':
-        search = request.POST.get('search', None)
-
-        if search:
-            details,price,reviews = ReadAsin(search)
-
-            reviews_text = []
-
-            for text in reviews:
-                reviews_text.append(text.get('review_text'))
-
-            context = {
-                'details': details,
-                'price': price,
-                'reviews': reviews_text
-            }
-
-        return render(request,'productdetails.html', context)
-
-    return render(request,'home.html')
+if __name__ == '__main__':
+    ReadAsin()
